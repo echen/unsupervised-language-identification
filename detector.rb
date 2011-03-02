@@ -1,3 +1,5 @@
+require 'yaml'
+
 class String  
   # If `all_ngrams` is passed in, only keep ngrams in that set.
   # (Because we may want to ignore low-frequency ngrams.)
@@ -7,8 +9,9 @@ class String
     x
   end
   
+  # TODO: Try not normalizing out all non-ASCII characters! Should significantly reduce false positive rate.
   def normalize
-    self.remove_tweeters.remove_links.downcase.gsub(/\s/, " ").gsub(/[^a-z0-9\s]/, "")    
+    self.remove_tweeters.remove_links.remove_hashtags.downcase.gsub(/\s/, " ").gsub(/[^a-z0-9\s]/, "")    
   end  
   
   # Remove mentions of other twitter users.
@@ -16,6 +19,10 @@ class String
     self.gsub(/@.+?\s/, "")
   end
   
+  def remove_hashtags
+    self.gsub(/#.+?\s/, "")
+  end
+    
   def remove_links
     self.gsub(/http.+?\s/, "")
   end
@@ -46,7 +53,7 @@ class Language
   
   # Compute the unnormalized probability of generating this set of ngrams.
   def unnormalized_prob(ngrams)
-    @base_prob * ngrams.inject(1) { |prob, ngram| prob * (@ngram_probs[ngram] + SMOOTHING_FACTOR)}
+    @base_prob * ngrams.inject(1) { |prob, ngram| prob * ((@ngram_probs[ngram] || rand) + SMOOTHING_FACTOR)}
   end
   
   # Add the set of ngrams to our (probability-weighted) count.
@@ -122,27 +129,23 @@ class Detector
     
     return p_e
   end
+  
+  def is_english?(document)
+    return compute_english_prob(document) > 0.5
+  end
+  
+  def yamlize(filename)
+    File.open(filename, "w") do |f|
+      f.puts self.to_yaml
+    end
+  end
+  
+  def self.load_yaml(filename)
+    return YAML::load(File.read(filename))
+  end    
 end
 
 =begin
 detector = Detector.new(:num_iterations => 10)
 detector.train("smiley_tweets_tiny.txt")
-
-english_tweets = []
-other_tweets = []
-IO.foreach("smiley_tweets_tiny.txt") do |line|
-  p = detector.compute_english_prob(line)
-  if p > 0.7
-    english_tweets << line.strip
-  elsif p < 0.3
-    other_tweets << line.strip
-  end
-end
-
-puts "ENGLISH TWEETS"
-puts english_tweets.first(25).join("\n")
-puts
-puts "OTHER TWEETS"
-puts other_tweets.first(25).join("\n")
-puts
 =end

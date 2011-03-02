@@ -1,40 +1,35 @@
 require_relative './detector'
 
-# Create training set.
-=begin
-test_set = IO.readlines("data/gutenberg-training-en.txt") + IO.readlines("data/gutenberg-training-sp.txt")
-test_set = test_set.select{ |x| !x.strip.empty? }.sort_by{ rand }
-File.open("data/gutenberg-training.txt", "w") do |f|
-  test_set.each{ |line| f.puts line }
-end
-=end
+detector = Detector.new(:ngram_size => 2, :num_iterations => 30)
+detector.train("datasets/gutenberg-training.txt")
 
-detector = Detector.new(:ngram_size => 3, :num_iterations => 30)
-detector.train("data/gutenberg-training.txt")
-
-total_count = 0
-count = 0
-IO.foreach("data/gutenberg-test-en.txt") do |line|
+true_english = 0
+false_spanish = 0
+IO.foreach("datasets/gutenberg-test-en.txt") do |line|
   next if line.strip.empty?
-  total_count += 1
   p = detector.compute_english_prob(line)
   if p < 0.5
     puts line
-    count += 1
+    false_spanish += 1
+  else
+    true_english += 1
   end
 end
-puts count.to_f / total_count
+puts false_spanish
+puts true_english
 
 puts
-total_count = 0
-count = 0
-IO.foreach("data/gutenberg-test-sp.txt") do |line|
+true_spanish = 0
+false_english = 0
+IO.foreach("datasets/gutenberg-test-sp.txt") do |line|
   next if line.strip.empty?
-  total_count += 1  
   p = detector.compute_english_prob(line)
   if p > 0.5
     puts line
-    count += 1
+    false_english += 1
+  else
+    true_spanish += 1
   end
 end
-puts count.to_f / total_count
+puts false_english
+puts true_spanish
