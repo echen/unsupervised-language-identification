@@ -120,6 +120,7 @@ class Detector
     end    
   end
   
+  # TODO: rename this, since the majority language doesn't necessarily have to be English.
   def compute_english_prob(document)
     ngrams = document.to_ngrams(@options[:ngram_size])  
     p_english = @english.unnormalized_prob(ngrams)
