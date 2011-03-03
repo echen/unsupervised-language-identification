@@ -25,4 +25,4 @@ Given a set of strings from different languages, build a detector for the majori
 
 # Demo
 
-See a demo [http://babel-fett.heroku.com](here).
+See a demo [here](http://babel-fett.heroku.com).
