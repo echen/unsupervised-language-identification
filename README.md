@@ -20,3 +20,9 @@ Given a set of strings from different languages, build a detector for the majori
 	end
 	puts false_spanish
 	puts true_english
+	
+![Example](https://img.skitch.com/20110303-qfrnb8gstgheh4xech4iutfskd.jpg)
+
+# Demo
+
+See a demo [http://babel-fett.heroku.com](here).
