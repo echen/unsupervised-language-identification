@@ -3,19 +3,20 @@ Given a set of strings from different languages, build a detector for the majori
 
 # Example
 
-	detector = Detector.new(:ngram_size => 2, :num_iterations => 30)
-	detector.train("datasets/gutenberg-training.txt") # Each line is a training example.
+	training_sentences = File.readlines("datasets/gutenberg-training.txt")
+	detector = LanguageDetector.new(:ngram_size => 3)
+	detector.train(30, training_sentences)
 
+	puts "Testing on English sentences..."
 	true_english = 0
 	false_spanish = 0
 	IO.foreach("datasets/gutenberg-test-en.txt") do |line|
 	  next if line.strip.empty?
-	  p = detector.compute_english_prob(line)
-	  if p < 0.5
-	    puts line
-	    false_spanish += 1
-	  else
+	  if detector.classify(line) == "majority"
 	    true_english += 1
+	  else
+	    puts line
+	    false_spanish += 1    
 	  end
 	end
 	puts false_spanish
