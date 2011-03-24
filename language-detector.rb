@@ -1,4 +1,4 @@
-require_relative './naive-bayes-classifier'
+require './naive-bayes-classifier'
 
 class String  
   # Returns a set of `n`-grams computed from this string.
@@ -26,13 +26,15 @@ class String
 end
 
 class LanguageDetector
+  attr_reader :classifier
+  
   def initialize(ngram_size)
     @ngram_size = ngram_size    
     @classifier = NaiveBayesClassifier.new(2)
   end
   
   def train(max_epochs, training_sentences)
-    @classifier.train_em(max_epochs, training_sentences.map{ |sentence| sentence.to_ngrams(@ngram_size) })
+    @classifier = NaiveBayesClassifier.train_em(max_epochs, training_sentences.map{ |sentence| sentence.to_ngrams(@ngram_size) })
     @classifier.category_names = 
       if @classifier.get_prior_category_probability(0) > @classifier.get_prior_category_probability(1)
         %w( majority minority )

@@ -15,7 +15,7 @@ class NaiveBayesClassifier
   # `num_categories`: number of categories we want to classify.
   # `prior_category_counts`: array of parameters for a Dirichlet prior that we place on the prior probabilities of each category. Set the array to all 0's if you want to use maximum likelihood estimates. Defaults to uniform reals from the unit interval if nothing is set.
   # `prior_token_count`: parameter for a beta prior that we place on p(token|category). Set to 0 if you want to use maximum likelihood estimates.
-  def initialize(num_categories = 2, prior_token_count = 0.001, prior_category_counts = nil, category_names = nil)
+  def initialize(num_categories = 2, prior_token_count = 0.0001, prior_category_counts = nil, category_names = nil)
     @num_categories = num_categories
     @prior_token_count = prior_token_count
     @prior_category_counts = prior_category_counts || Array.new(@num_categories) { rand }
@@ -37,10 +37,11 @@ class NaiveBayesClassifier
     @category_counts[category_index] += probability
   end
   
-  def train_em(max_epochs, training_examples)
-    prev_classifier = self    
+  # Performs a Naive Bayes EM algorithm with two classes.
+  def self.train_em(max_epochs, training_examples)
+    prev_classifier = NaiveBayesClassifier.new
     max_epochs.times do
-      classifier = NaiveBayesClassifier.new(@num_categories, @prior_token_count, @prior_category_counts)
+      classifier = NaiveBayesClassifier.new
     
       # E-M training
       training_examples.each do |example|
@@ -49,12 +50,13 @@ class NaiveBayesClassifier
               
         # M-step: for each category, recompute the probability of generating each token.
         posterior_category_probs.each_with_index do |p, category|
-          self.train(example, category, p) 
+          classifier.train(example, category, p) 
         end
       end    
-      prev_classifier = self    
+      prev_classifier = classifier    
       # TODO: add a convergence check, so we can break out early if we want.
     end
+    return prev_classifier
   end  
   
   def classify(tokens)
