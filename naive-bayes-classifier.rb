@@ -37,6 +37,28 @@ class NaiveBayesClassifier
     @category_counts[category_index] += probability
   end
   
+  def train_em(max_epochs, training_examples)
+    prev_classifier = self    
+    max_epochs.times do
+      classifier = NaiveBayesClassifier.new(@num_categories, @prior_token_count, @prior_category_counts)
+    
+      # E-M training
+      training_examples.each do |example|
+        # E-step: for each training example, recompute its classification probabilities.
+        posterior_category_probs = prev_classifier.get_posterior_category_probabilities(example) 
+              
+        # M-step: for each category, recompute the probability of generating each token.
+        posterior_category_probs.each_with_index do |p, category|
+          self.train(example, category, p) 
+        end
+      end
+    
+      prev_classifier = self
+    
+      # TODO: add a convergence check, so we can break out early if we want.
+    end
+  end  
+  
   def classify(tokens)
     max_prob, max_category = -1, -1
     get_posterior_category_probabilities(tokens).each_with_index do |prob, category|

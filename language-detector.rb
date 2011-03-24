@@ -27,18 +27,21 @@ class String
 end
 
 class LanguageDetector
-  def initialize(ngram_size)
-    @ngram_size = ngram_size    
-    @classifier = NaiveBayesEm.new(2)
+  def initialize
+    @em = NaiveBayesEm.new(2)
   end
   
   def train(max_epochs, training_examples)
-    @classifier.train(max_epochs, training_examples)
-    @classifier.category_names = 
+    @em.train(max_epochs, training_examples)
+    @em.classifier.category_names = 
       if @classifier.get_prior_category_probability(0) > @classifier.get_prior_category_probability(1)
         %w( majority minority )
       else
         %w( minority majority )
       end    
+  end
+  
+  def classify(example)
+    @em.classifier.category_names[@em.classify(example)]
   end
 end

@@ -1,3 +1,4 @@
+=begin
 require_relative './naive-bayes-classifier'
 
 class NaiveBayesEm
@@ -30,4 +31,9 @@ class NaiveBayesEm
     end  
     @classifier = prev_classifier
   end
+  
+  def classify(example)
+    @classifier.classify(example)
+  end
 end
+=end
