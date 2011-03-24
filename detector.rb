@@ -1,6 +1,6 @@
 require 'yaml'
 
-class String  
+class String
   # If `all_ngrams` is passed in, only keep ngrams in that set.
   # (Because we may want to ignore low-frequency ngrams.)
   def to_ngrams(n, all_ngrams = nil)
@@ -68,19 +68,19 @@ class Language
     @ngram_counts.each do |ngram, count|
       @ngram_probs[ngram] = count.to_f / total_count
       @ngram_counts[ngram] = 0 # Reset this count.
-    end    
+    end
   end
 end
 
 class Detector
   def initialize(options = {})
-    @options = {:ngram_size => 3, 
-                :min_ngram_count => 5, 
+    @options = {:ngram_size => 3,
+                :min_ngram_count => 5,
                 :english_prior_prob => 0.7,
                 :num_iterations => 30}.merge(options)
   end
   
-  def train(training_set_filename)    
+  def train(training_set_filename)
     # Filter out low-frequency ngrams.
     all_ngram_counts = Hash.new(0)
     IO.foreach(training_set_filename) do |line|
@@ -93,7 +93,7 @@ class Detector
 
     # Perform the training.
     @english = Language.new(@options[:english_prior_prob], total_num_ngrams)
-    @other = Language.new(1 - @options[:english_prior_prob], total_num_ngrams)    
+    @other = Language.new(1 - @options[:english_prior_prob], total_num_ngrams)
     @options[:num_iterations].times do |i|
       # E step - for each document, recompute the probability that it comes from language i.
       IO.foreach(training_set_filename) do |line|
@@ -105,7 +105,7 @@ class Detector
         p_o = 1 - p_e
 
         @english.add_ngrams(ngrams, p_e)
-        @other.add_ngrams(ngrams, p_o)      
+        @other.add_ngrams(ngrams, p_o)
       end
 
       # M step - for each language, recompute the probability that it generates ngram i.
@@ -113,16 +113,16 @@ class Detector
       @other.m_step
     end
     
-    # We assume English is the majority language. 
+    # We assume English is the majority language.
     # While converging, the languages may have switched around, so switch back.
     if @english.base_prob < @other.base_prob
       @english, @other = @other, @english
-    end    
+    end
   end
   
   # TODO: rename this, since the majority language doesn't necessarily have to be English.
   def compute_english_prob(document)
-    ngrams = document.to_ngrams(@options[:ngram_size])  
+    ngrams = document.to_ngrams(@options[:ngram_size])
     p_english = @english.unnormalized_prob(ngrams)
     p_other = @other.unnormalized_prob(ngrams)
     p_e = p_english / (p_english + p_other)
