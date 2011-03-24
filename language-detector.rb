@@ -1,4 +1,3 @@
-require_relative './naive-bayes-em'
 require_relative './naive-bayes-classifier'
 
 class String  
@@ -27,13 +26,14 @@ class String
 end
 
 class LanguageDetector
-  def initialize
-    @em = NaiveBayesEm.new(2)
+  def initialize(ngram_size)
+    @ngram_size = ngram_size    
+    @classifier = NaiveBayesClassifier.new(2)
   end
   
-  def train(max_epochs, training_examples)
-    @em.train(max_epochs, training_examples)
-    @em.classifier.category_names = 
+  def train(max_epochs, training_sentences)
+    @classifier.train_em(max_epochs, training_sentences.map{ |sentence| sentence.to_ngrams(@ngram_size) })
+    @classifier.category_names = 
       if @classifier.get_prior_category_probability(0) > @classifier.get_prior_category_probability(1)
         %w( majority minority )
       else
@@ -41,7 +41,12 @@ class LanguageDetector
       end    
   end
   
-  def classify(example)
-    @em.classifier.category_names[@em.classify(example)]
+  def classify(sentence)
+    category_index = @classifier.classify(sentence.to_ngrams(@ngram_size))
+    @classifier.category_names[category_index]
   end
+  
+  def probabilities(sentence)
+    @classifier.get_posterior_category_probabilities(sentence.to_ngrams(@ngram_size))
+  end  
 end

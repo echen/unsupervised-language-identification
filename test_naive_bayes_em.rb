@@ -13,7 +13,7 @@ class NaiveBayesEmTests < Test::Unit::TestCase
     color_classifications = [%w(red rainbow green grass), %w(one red blue green), %w(brown cow)].map do |example|
       @two.classify(example)
     end    
-    number_classifications = [%w(one hundred two three red), %w(one nine one one eight), %w(three cows)].map do |example|
+    number_classifications = [%w(one hundred two three red), %w(one nine one one eight), %w(three cows)].map do |example|      
       @two.classify(example)
     end
     

@@ -51,10 +51,8 @@ class NaiveBayesClassifier
         posterior_category_probs.each_with_index do |p, category|
           self.train(example, category, p) 
         end
-      end
-    
-      prev_classifier = self
-    
+      end    
+      prev_classifier = self    
       # TODO: add a convergence check, so we can break out early if we want.
     end
   end  
@@ -77,8 +75,6 @@ class NaiveBayesClassifier
     normalization = 1 if normalization == 0
     return unnormalized_posterior_probs.map{ |p| p / normalization }
   end    
-  
-  private
   
   # p(token | category)
   def get_token_probability(token, category_index)
