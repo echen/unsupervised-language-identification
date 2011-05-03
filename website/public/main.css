@@ -1,0 +1,23 @@
+#container {
+	margin: 10px 20px;
+}
+
+table {
+	text-align: left;
+}
+
+	table th.language, table td.language {
+		width: 150px;
+	}
+
+.english {
+	background-color: #99FF99;
+}
+
+.other {
+	background-color: #FF9999;
+}
+
+form {
+	margin-bottom: 10px;
+}

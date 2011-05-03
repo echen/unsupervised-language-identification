@@ -1,0 +1,36 @@
+%p An unsupervised language identification algorithm. Trained on tweets with lang = "en" according to the Twitter API (which, in practice, returns tweets in Spanish, Portuguese, Dutch, Russian, and a couple other languages as well). More information <a href="http://echen.me/blog/unsupervised-language-identification-using-em">here</a>.
+
+%form{ :action => "/", :method => "post" }
+  %label{ :for => "sentence" } Sentence
+  %input{ :id => "sentence", :name => "sentence" }
+  %button{ :type => "submit" } Detect Language
+
+- if @sentence and !@sentence.empty?
+  %p
+    %strong= @sentence
+    is
+    %span{ :class => "#{@language == "English" ? "english" : "other"}"}= @language
+    
+%table
+  %tr#header
+    %th.language Language
+    %th.tweet Tweet
+
+:javascript
+  function addTweet() {
+    $.ajax({
+        method: 'GET',
+        url: '/tweet',
+        cache: false,
+        success: function(data) {
+            $("table tr#header:first").after(data).slideDown('slow');
+            setTimeout(addTweet, 500);                
+        }
+    });
+    $('table tr.tweet:gt(20)').remove();
+  }
+  
+  $(function() {
+    $("form").inlineFormLabels();
+    setTimeout(addTweet, 500);
+  });

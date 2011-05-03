@@ -1,5 +1,5 @@
 require 'yaml'
-require_relative './naive-bayes-classifier'
+require File.expand_path('../naive-bayes-classifier', __FILE__)
 
 class String  
   # Returns a set of `n`-grams computed from this string.
@@ -26,6 +26,7 @@ class String
   end
 end
 
+# Given a set of sentences in multiple languages, build a classifier to detect the majority language.
 class LanguageDetector
   attr_reader :classifier
   
@@ -45,6 +46,7 @@ class LanguageDetector
       end    
   end
   
+  # Returns the (named) category the sentence belongs to.
   def classify(sentence)
     category_index = @classifier.classify(sentence.to_ngrams(@ngram_size))
     @classifier.category_names[category_index]

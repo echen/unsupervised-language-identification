@@ -86,7 +86,7 @@ class NaiveBayesClassifier
     if denom == 0
       return 0
     else
-      return (@token_counts[category_index][token] + @prior_token_count).to_f / denom
+      return ((@token_counts[category_index][token] || 0) + @prior_token_count).to_f / denom # TODO: Make the default hash value 0, to remove the `|| 0`.
     end
   end
   
