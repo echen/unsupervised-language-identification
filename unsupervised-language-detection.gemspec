@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Edwin Chen"]
   s.email       = ["hello@echen.me"]
-  s.homepage    = ""
+  s.homepage    = "http://blog.echen.me/2011/05/01/unsupervised-language-detection-algorithms/"
   s.summary     = %q{Perform unsupervised language detection.}
   s.description = %q{Perform unsupervised language detection, specifically for the purpose of finding English-language tweets.}
 
