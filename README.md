@@ -24,5 +24,15 @@ Given a set of strings from different languages, build a detector for the majori
 	
 ![Example](https://img.skitch.com/20110303-qfrnb8gstgheh4xech4iutfskd.jpg)
 
+# Using the Gem
+
+	gem install unsupervised-language-detection
+	
+	require 'rubygems'
+	require 'unsupervised-language-detection'
+	
+	UnsupervisedLanguageDetection.is_english_tweet?("I am an English sentence.") # => true
+	UnsupervisedLanguageDetection.is_english_tweet?("Hola, me llamo Edwin.") # => false
+	
 # Demo
 See a demo [here](http://babel-fett.heroku.com).
