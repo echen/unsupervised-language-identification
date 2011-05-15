@@ -1,4 +1,4 @@
-require_relative './src/language-detector'
+require_relative './lib/unsupervised-language-detection/language-detector'
 
 # Train on a mix of English and Spanish sentences, pulled from Project Gutenberg text.
 training_sentences = File.readlines("datasets/gutenberg-training.txt")
