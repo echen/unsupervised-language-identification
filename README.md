@@ -1,5 +1,5 @@
 # What?
-Given a set of strings from different languages, build a detector for the majority language (often, but not necessarily, English).
+Given a set of strings from different languages, build a detector for the majority language (often, but not necessarily, English). More information on the algorithm [here](http://blog.echen.me/2011/05/01/unsupervised-language-detection-algorithms/).
 
 # Example
 
