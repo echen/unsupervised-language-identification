@@ -1,13 +1,3 @@
-class Array
-  def sum
-    self.reduce(0) { |total, element| total + element }
-  end
-  
-  def product
-    self.reduce(1) { |total, element| total * element }
-  end
-end
-
 class NaiveBayesClassifier
   attr_reader :num_categories, :prior_token_count, :prior_category_counts
   attr_accessor :category_names
@@ -72,10 +62,10 @@ class NaiveBayesClassifier
   # Returns p(category | token), for each category, in an array.
   def get_posterior_category_probabilities(tokens)
     unnormalized_posterior_probs = (0..@num_categories-1).map do |category|
-      p = tokens.map { |token| get_token_probability(token, category) }.product # p(tokens | category)
+      p = tokens.map { |token| get_token_probability(token, category) }.reduce(:*) # p(tokens | category)
       p * get_prior_category_probability(category) # p(tokens | category) * p(category)
     end
-    normalization = unnormalized_posterior_probs.sum
+    normalization = unnormalized_posterior_probs.reduce(:+)
     normalization = 1 if normalization == 0
     return unnormalized_posterior_probs.map{ |p| p / normalization }
   end    
@@ -92,7 +82,7 @@ class NaiveBayesClassifier
   
   # p(category)
   def get_prior_category_probability(category_index)
-    denom = @category_counts.sum + @prior_category_counts.sum    
+    denom = @category_counts.reduce(:+) + @prior_category_counts.reduce(:+)
     if denom == 0
       return 0
     else
