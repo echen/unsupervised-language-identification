@@ -1,5 +1,5 @@
 require 'test/unit'
-require_relative '../src/language-detector'
+require_relative '../lib/unsupervised-language-detection/language-detector'
 
 class LanguageDetectorTests < Test::Unit::TestCase
   def setup

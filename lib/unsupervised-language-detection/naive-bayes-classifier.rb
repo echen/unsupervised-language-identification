@@ -51,7 +51,18 @@ class NaiveBayesClassifier
     return prev_classifier
   end  
   
+  # Returns the *index* (not the name) of the category the tokens are classified under.
   def classify(tokens)
+    # Return the category with the highest prior probability.
+    if tokens.empty?
+      max_category = -1
+      max_prob = -1
+      (0..@num_categories - 1).each do |i|
+        prior_prob = get_prior_category_probability(i)
+        max_prob, max_category = prior_prob, i if prior_prob > max_prob
+      end
+    end
+    
     max_prob, max_category = -1, -1
     get_posterior_category_probabilities(tokens).each_with_index do |prob, category|
       max_prob, max_category = prob, category if prob > max_prob

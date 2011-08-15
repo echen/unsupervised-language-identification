@@ -1,15 +1,15 @@
 require 'yaml'
-require File.expand_path('../naive-bayes-classifier', __FILE__)
+require_relative './naive-bayes-classifier'
 
 class String  
-  # Returns a set of `n`-grams computed from this string.
+  # Returns a set of character `n`-grams computed from this string.
   def to_ngrams(n)
     self.normalize_tweet.scan(/.{#{n}}/)
   end
   
   # TODO: Try not normalizing out all non-ASCII characters! Should significantly reduce false positive rate.
   def normalize_tweet
-    self.remove_tweeters.remove_links.remove_hashtags.downcase.gsub(/\s/, " ").gsub(/[^a-z0-9\s]/, "")    
+    self.remove_tweeters.remove_links.remove_hashtags.downcase.gsub(/\s/, " ").gsub(/[^a-z0-9\s]/, "").strip
   end  
   
   # Remove mentions of other twitter users.

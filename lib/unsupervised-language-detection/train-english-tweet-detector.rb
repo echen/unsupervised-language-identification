@@ -1,4 +1,4 @@
-require File.expand_path('../language-detector', __FILE__)
+require_relative './language-detector'
 
 TWEETS_FILENAME = "datasets/tweets_5000.txt"
 

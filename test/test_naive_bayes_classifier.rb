@@ -1,5 +1,5 @@
 require 'test/unit'
-require_relative '../src/naive-bayes-classifier'
+require_relative '../lib/unsupervised-language-detection/naive-bayes-classifier'
 
 class NaiveBayesClassifierTests < Test::Unit::TestCase
   def setup
