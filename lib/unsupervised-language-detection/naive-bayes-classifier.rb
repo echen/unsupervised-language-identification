@@ -2,25 +2,39 @@ class NaiveBayesClassifier
   attr_reader :num_categories, :prior_token_count, :prior_category_counts
   attr_accessor :category_names
   
-  # `num_categories`: number of categories we want to classify.
-  # `prior_category_counts`: array of parameters for a Dirichlet prior that we place on the prior probabilities of each category. Set the array to all 0's if you want to use maximum likelihood estimates. Defaults to uniform reals from the unit interval if nothing is set.
-  # `prior_token_count`: parameter for a beta prior that we place on p(token|category). Set to 0 if you want to use maximum likelihood estimates.
+  # Parameters
+  # ----------
+  # num_categories: number of categories we want to classify.
+  # prior_category_counts: array of parameters for a Dirichlet prior that we place on the prior probabilities of each category. (In other words, these are "virtual counts" of the number of times we have seen each category previously.) Set the array to all 0's if you want to use maximum likelihood estimates. Defaults to uniform reals from the unit interval if nothing is set.
+  # prior_token_count: parameter for a beta prior that we place on p(token|category). (In other words, this is a "virtual count" of the number of times we have seen each token previously.) Set to 0 if you want to use maximum likelihood estimates.
   def initialize(options = {})
     options = {:num_categories => 2,
-               :prior_token_count => 0.0001}.merge(options)    
+               :prior_token_count => 0.0001}.merge(options)
+
     @num_categories = options[:num_categories]
     @prior_token_count = options[:prior_token_count]
     @prior_category_counts = options[:prior_category_counts] || Array.new(@num_categories) { rand }
     @category_names = options[:category_names] || (0..num_categories-1).map(&:to_s).to_a
     
-    @token_counts = Array.new(@num_categories) do # `@token_counts[category][token]` is the (weighted) number of times we have seen `token` with this category
+    # `@token_counts[category][token]` is the (weighted) number of times we have seen `token` with this category.
+    @token_counts = Array.new(@num_categories) do
       Hash.new { |h, token| h[token] = 0 }
     end
-    @total_token_counts = Array.new(@num_categories, 0) # `@total_token_counts[category]` is always equal to `@token_counts[category].sum`
-    @category_counts = Array.new(@num_categories, 0) # `@category_counts[category]` is the (weighted) number of training examples we have seen with this category
-  end
+    
+    # `@total_token_counts[category]` is always equal to `@token_counts[category].sum`.
+    @total_token_counts = Array.new(@num_categories, 0)
+    
+    # `@category_counts[category]` is the (weighted) number of training examples we have seen with this category.
+    @category_counts = Array.new(@num_categories, 0)
+  end    
   
-  # `example`: an array of tokens.
+  # Given a labeled training example (i.e., an array of tokens and its probability of belonging to a certain category), update the parameters of the Naive Bayes model.
+  # Parameters
+  # ----------
+  # example: an array of tokens.
+  # category_index: the index of the category this example belongs to.
+  # probability: the probability that the example belongs to the category.
+  # 
   def train(example, category_index, probability = 1)
     example.each do |token|
       @token_counts[category_index][token] += probability
@@ -53,20 +67,21 @@ class NaiveBayesClassifier
   
   # Returns the *index* (not the name) of the category the tokens are classified under.
   def classify(tokens)
-    # Return the category with the highest prior probability.
-    if tokens.empty?
-      max_category = -1
-      max_prob = -1
+    max_prob, max_category = -1, -1
+
+    if tokens.empty?      
+      # If the example is empty, find the category with the highest prior probability.
       (0..@num_categories - 1).each do |i|
         prior_prob = get_prior_category_probability(i)
         max_prob, max_category = prior_prob, i if prior_prob > max_prob
       end
+    else
+      # Otherwise, find the category with the highest posterior probability.
+      get_posterior_category_probabilities(tokens).each_with_index do |prob, category|
+        max_prob, max_category = prob, category if prob > max_prob
+      end
     end
     
-    max_prob, max_category = -1, -1
-    get_posterior_category_probabilities(tokens).each_with_index do |prob, category|
-      max_prob, max_category = prob, category if prob > max_prob
-    end
     return max_category
   end
   
@@ -81,17 +96,17 @@ class NaiveBayesClassifier
     return unnormalized_posterior_probs.map{ |p| p / normalization }
   end    
   
-  # p(token | category)
+  # Returns p(token | category).
   def get_token_probability(token, category_index)
     denom = @total_token_counts[category_index] + @token_counts[category_index].size * @prior_token_count    
     if denom == 0
       return 0
     else
-      return ((@token_counts[category_index][token] || 0) + @prior_token_count).to_f / denom # TODO: Make the default hash value 0, to remove the `|| 0`.
+      return ((@token_counts[category_index][token] || 0) + @prior_token_count).to_f / denom
     end
   end
   
-  # p(category)
+  # Returns p(category).
   def get_prior_category_probability(category_index)
     denom = @category_counts.reduce(:+) + @prior_category_counts.reduce(:+)
     if denom == 0

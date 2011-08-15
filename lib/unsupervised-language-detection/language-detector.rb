@@ -14,15 +14,21 @@ class String
   
   # Remove mentions of other twitter users.
   def remove_tweeters
-    self.gsub(/@.+?\s/, "")
+    self.gsub(/@\w+/, "")
   end
   
+  # Remove any words beginning with '#'.
   def remove_hashtags
-    self.gsub(/#.+?\s/, "")
+    self.gsub(/#\w+/, "")
   end
-    
+  
+  # Remove anything beginning with 'http', 'www', or ending with '.com'.
+  # (Not the most sophisticated link remover, I know.)
   def remove_links
-    self.gsub(/http.+?\s/, "")
+    ret = self.gsub(/http\S+/, "")
+    ret = ret.gsub(/www\S+/, "")
+    ret = ret.gsub(/\S+\.com/, "")
+    ret
   end
 end
 
@@ -56,12 +62,14 @@ class LanguageDetector
     @classifier.get_posterior_category_probabilities(sentence.to_ngrams(@ngram_size))
   end
   
+  # Dumps the language model to a file.
   def yamlize(filename)
     File.open(filename, "w") do |f|
       f.puts self.to_yaml
     end
   end
   
+  # Loads the language model from a file.
   def self.load_yaml(filename)
     return YAML::load(File.read(filename))
   end  
