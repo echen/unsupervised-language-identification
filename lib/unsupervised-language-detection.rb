@@ -6,5 +6,3 @@ module UnsupervisedLanguageDetection
     @detector.classify(tweet) == "majority"
   end
 end
-
-UnsupervisedLanguageDetection.is_english_tweet?("http://www.test.com/ ")
